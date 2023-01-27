@@ -4,8 +4,8 @@ import numpy as np
 class FireflyAlgorithm:
     def __init__(
         self,
-        population_size=100,
-        max_generation=100,
+        population_size=10,
+        max_generation=50,
         absorption_coefficient=0.01,
         beta_max=500,
         dimension=None,
@@ -21,7 +21,9 @@ class FireflyAlgorithm:
     def run(self, function):
         generation = 0
         light_intensities = self._generate_light_intensity(function)
+        best_fireflies = []
         self.best_firefly = np.argmax(light_intensities)
+        best_fireflies.append(np.rint(self.fireflies[self.best_firefly]))
 
         while generation <= self.max_generation:
             for i in range(self.population_size):
@@ -33,9 +35,10 @@ class FireflyAlgorithm:
                         light_intensities[i] = self._update_intensity(i, function)
 
             self.best_firefly = np.argmax(light_intensities)
-            # self._print_res(light_intensities, function)
+            best_fireflies.append(np.rint(self.fireflies[self.best_firefly]))
             generation += 1
-        return np.rint(self.fireflies[self.best_firefly])
+
+        return np.rint(self.fireflies[self.best_firefly]), best_fireflies
 
     def _generate_population(self):
         return np.random.randint(2, size=(self.population_size, self.dimension)).astype(
@@ -71,9 +74,3 @@ class FireflyAlgorithm:
 
     def _generate_random_step(self):
         return np.random.uniform(low=-1, high=1, size=self.dimension)
-
-    def _print_res(self, light_intensities, function):
-        print("---------")
-        print(f"BEST: {np.rint(self.fireflies[self.best_firefly])}")
-        print((f"TRUE SCORE: {function(np.rint(self.fireflies[self.best_firefly]))}"))
-        print(f"SCORE: {light_intensities[self.best_firefly]}")
